@@ -7,6 +7,6 @@
 python -m venv .venv
 .venv\Scripts\activate
 
-# Luyện bot, lưu vào file values.plk
+# Luyện bot, lưu vào file values.pkl
 python train.py
 ```
