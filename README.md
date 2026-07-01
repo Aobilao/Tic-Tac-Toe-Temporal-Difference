@@ -9,4 +9,7 @@ python -m venv .venv
 
 # Luyện bot, lưu vào file values.pkl
 python train.py
+
+# Chạy app (chạy sau khi luyện)
+python app.py
 ```
