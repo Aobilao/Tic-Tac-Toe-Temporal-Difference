@@ -7,9 +7,15 @@
 python -m venv .venv
 .venv\Scripts\activate
 
+# Tải Flask
+pip install Flask
+
+# Chạy app
+python app.py
+
 # Luyện bot, lưu vào file values.pkl
 python train.py
 
-# Chạy app (chạy sau khi luyện)
-python app.py
+# Chơi thử trên terminal
+python game.py
 ```
