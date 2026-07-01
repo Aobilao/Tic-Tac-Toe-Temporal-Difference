@@ -1,5 +1,3 @@
-from re import L
-
 from game import EMPTY, Game, Player, Board
 import random
 
