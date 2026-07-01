@@ -43,15 +43,18 @@
     <h1>Tic-Tac-Toe</h1>
     <p id="status"></p>
     <div id="board"></div>
-    <button id="reset" onclick="newGame()">New Game</button>
+    <div style="margin-top: 20px">
+      <button onclick="newGame(1)">Play as X</button>
+      <button onclick="newGame(2)">Play as O</button>
+    </div>
 
     <script>
-      const HUMAN = 1;
-      const BOT = 2;
       const SYMBOLS = { 0: "", 1: "X", 2: "O" };
 
       let board = [];
       let gameOver = false;
+      let HUMAN = 1;
+      let BOT = 2;
 
       function drawBoard() {
         const boardDiv = document.getElementById("board");
@@ -69,6 +72,7 @@
 
       function showStatus(status) {
         const p = document.getElementById("status");
+        const symbol = SYMBOLS[HUMAN];
         if (status === "human") {
           p.textContent = "You win!";
           gameOver = true;
@@ -79,7 +83,7 @@
           p.textContent = "It's a draw!";
           gameOver = true;
         } else {
-          p.textContent = "Your turn (X)";
+          p.textContent = "Your turn (" + symbol + ")";
         }
       }
 
@@ -101,14 +105,29 @@
         showStatus(data.status);
       }
 
-      function newGame() {
-        board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-        gameOver = false;
+      async function botFirstMove() {
+        const response = await fetch("/move", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ board: board, bot_player: BOT }),
+        });
+        const data = await response.json();
+        board = data.board;
         drawBoard();
-        showStatus("ongoing");
+        showStatus(data.status);
       }
 
-      newGame();
+      function newGame(side) {
+        board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        gameOver = false;
+        HUMAN = side || 1;
+        BOT = HUMAN === 1 ? 2 : 1;
+        drawBoard();
+        showStatus("ongoing");
+        if (BOT === 1) botFirstMove();
+      }
+
+      newGame(1);
     </script>
   </body>
 </html>

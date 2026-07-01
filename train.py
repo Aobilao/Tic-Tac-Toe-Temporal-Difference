@@ -82,12 +82,19 @@ if __name__ == "__main__":
     agent_x = Agent(X)
     agent_o = Agent(O)
 
-    train(agent_x, agent_o, 100000)
+    train(agent_x, agent_o, 1000000)
 
     games_against_random = 1000
-    win, draw, lose = play_against_random(agent_x, X, games_against_random)
+    win_x, draw_x, lose_x = play_against_random(agent_x, X, games_against_random)
+    win_o, draw_o, lose_o = play_against_random(agent_o, O, games_against_random)
+
     print("Against random:")
+    print("X:")
     print(
-        f"Win probability: {win / games_against_random}, non-loss: {(draw + win) / games_against_random}"
+        f"Win probability: {win_x / games_against_random}, loss probability: {lose_x / games_against_random}"
+    )
+    print("O:")
+    print(
+        f"Win probability: {win_o / games_against_random}, loss probability: {lose_o / games_against_random}"
     )
     save(agent_x, agent_o)
