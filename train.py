@@ -86,6 +86,6 @@ if __name__ == "__main__":
     win, draw, lose = play_against_random(agent_x, X, games_against_random)
     print("Against random:")
     print(
-        f"Win probability {win / games_against_random}, non-loss: {(draw + win) / games_against_random}"
+        f"Win probability: {win / games_against_random}, non-loss: {(draw + win) / games_against_random}"
     )
     save(agent_x, agent_o)
