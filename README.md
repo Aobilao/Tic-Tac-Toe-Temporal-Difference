@@ -7,6 +7,9 @@
 python -m venv .venv
 .venv\Scripts\activate
 
+# Tải Flask
+pip install Flask
+
 # Chạy app
 python app.py
 
