@@ -23,12 +23,14 @@ def play_game(
 
 
 def train(agent_x: Agent, agent_o: Agent, rounds: int):
-    for _ in range(rounds):
-        state_history, winner = play_game(agent_x, agent_o)
+    for round in range(rounds):
+        epsilon = 0.3 * (1 - round / rounds)
+        agent_x.epsilon = epsilon
+        agent_o.epsilon = epsilon
 
+        state_history, winner = play_game(agent_x, agent_o)
         reward_x = reward(winner, X)
         reward_o = reward(winner, O)
-
         agent_x.train_from_game(state_history[X], reward_x)
         agent_o.train_from_game(state_history[O], reward_o)
 
@@ -80,7 +82,7 @@ if __name__ == "__main__":
     agent_x = Agent(X)
     agent_o = Agent(O)
 
-    train(agent_x, agent_o, 10000)
+    train(agent_x, agent_o, 100000)
 
     games_against_random = 1000
     win, draw, lose = play_against_random(agent_x, X, games_against_random)
