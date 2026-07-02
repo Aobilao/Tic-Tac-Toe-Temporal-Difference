@@ -2,49 +2,77 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic-Tac-Toe TD Learning Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe AI - Match Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
       body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f0f4f8;
-        color: #333;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+        color: #2c3e50;
         text-align: center;
         margin: 0;
-        padding: 50px 16px 80px;
+        padding: 40px 16px 80px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        min-height: 100vh;
       }
-
+      
       h1 {
         font-weight: 700;
-        color: #2c3e50;
+        letter-spacing: 1px;
         margin-bottom: 5px;
+        color: #1a252f;
+        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
       }
 
       #status {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 600;
         margin-bottom: 25px;
         height: 30px;
-        color: #7f8c8d;
-        transition: color 0.3s ease;
+        color: #34495e;
+        transition: all 0.3s ease;
       }
 
       .board-container {
-        background: white;
-        padding: 15px;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        position: relative;
+        transition: transform 0.1s;
+      }
+
+      @keyframes shake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        10% { transform: translate(-2px, -2px) rotate(-1deg); }
+        20% { transform: translate(-3px, 0px) rotate(1deg); }
+        30% { transform: translate(3px, 2px) rotate(0deg); }
+        40% { transform: translate(1px, -1px) rotate(1deg); }
+        50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        60% { transform: translate(-3px, 1px) rotate(0deg); }
+        70% { transform: translate(3px, 1px) rotate(-1deg); }
+        80% { transform: translate(-1px, -1px) rotate(1deg); }
+        90% { transform: translate(1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -2px) rotate(-1deg); }
+      }
+      .shake {
+        animation: shake 0.4s;
+        border: 1px solid rgba(231, 76, 60, 0.8) !important;
+        box-shadow: 0 0 30px rgba(231, 76, 60, 0.3) !important;
       }
 
       #board {
         display: grid;
         grid-template-columns: repeat(3, 100px);
-        gap: 10px;
+        gap: 12px;
         justify-content: center;
       }
 
@@ -52,350 +80,365 @@
         width: 100px;
         height: 100px;
         font-size: 55px;
-        font-family: "Poppins", sans-serif;
+        font-family: 'Poppins', sans-serif;
         font-weight: 700;
-        background: #f8f9fa;
-        border: 2px solid #e9ecef;
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 16px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
         outline: none;
+        box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.3);
       }
-
       .cell:hover {
-        background: #e2e6ea;
+        background: rgba(255, 255, 255, 0.9);
         transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
       }
-
-      .cell.x {
-        color: #3498db;
-      }
-
-      .cell.o {
-        color: #e74c3c;
+      .cell.x { color: #2980b9; text-shadow: 0 2px 4px rgba(41, 128, 185, 0.3); }
+      .cell.o { color: #c0392b; text-shadow: 0 2px 4px rgba(192, 57, 43, 0.3); }
+      .cell.win-glow {
+        background: rgba(255, 215, 0, 0.3);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        border-color: #f1c40f;
+        z-index: 10;
       }
 
       .controls {
-        margin-top: 30px;
+        margin-top: 35px;
         display: flex;
-        gap: 15px;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
       button.play-btn {
-        padding: 12px 24px;
-        font-size: 16px;
+        padding: 12px 20px;
+        font-size: 15px;
         font-weight: 600;
-        font-family: "Poppins", sans-serif;
-        color: white;
-        background-color: #2ecc71;
-        border: none;
-        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        color: #2c3e50;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px);
+        border-radius: 10px;
         cursor: pointer;
-        transition:
-          background-color 0.3s ease,
-          transform 0.1s;
-        box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       }
-
-      button.play-btn.x-btn {
-        background-color: #3498db;
-        box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
-      }
-
-      button.play-btn.o-btn {
-        background-color: #e74c3c;
-        box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
-      }
-
-      button.play-btn.inspect-btn {
-        background-color: #34495e;
-        box-shadow: 0 4px 6px rgba(52, 73, 94, 0.3);
-      }
-
       button.play-btn:hover {
-        filter: brightness(1.1);
+        background: rgba(255, 255, 255, 0.9);
         transform: translateY(-2px);
       }
-
-      button.play-btn:active {
-        transform: translateY(0);
+      button.play-btn.active {
+        background: rgba(46, 204, 113, 0.2);
+        border-color: #2ecc71;
+        color: #27ae60;
       }
-
-      #review {
-        margin-top: 36px;
-        width: 100%;
-        max-width: 900px;
+      button.play-btn.pvp-active {
+        background: rgba(155, 89, 182, 0.2);
+        border-color: #9b59b6;
+        color: #8e44ad;
       }
-
-      #review h2 {
+      button.inspect-btn {
+        background: rgba(52, 73, 94, 0.1);
+        border-color: #34495e;
         color: #2c3e50;
-        font-weight: 700;
-        margin-bottom: 6px;
+        width: 100%;
+        max-width: 300px;
+        margin-top: 10px;
       }
 
-      .legend {
-        font-size: 13px;
-        color: #7f8c8d;
-        margin-bottom: 22px;
-        display: flex;
-        gap: 18px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .legend span {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .swatch {
-        width: 14px;
-        height: 14px;
-        border-radius: 4px;
-        display: inline-block;
-      }
+
+      #review { margin-top: 36px; width: 100%; max-width: 900px; }
+      #review h2 { color: #1a252f; font-weight: 700; margin-bottom: 6px; }
+      .legend { font-size: 13px; color: #34495e; margin-bottom: 22px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+      .swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
 
       .turn {
-        background: white;
-        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
         padding: 18px;
         margin-bottom: 14px;
         text-align: left;
       }
-      .turn-head {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 14px;
-      }
-      .turn-head .label {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 15px;
-      }
-      .turn-head .sub {
-        font-size: 12px;
-        color: #95a5a6;
-      }
+      .turn.p1-turn { border-left: 5px solid #3498db; }
+      .turn.p2-turn { border-left: 5px solid #e74c3c; }
 
-      .cand-row {
-        display: flex;
-        gap: 12px;
-        overflow-x: auto;
-        padding-bottom: 6px;
-      }
+      .turn-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+      .turn-head .label { font-weight: 600; color: #2c3e50; font-size: 16px; display: flex; align-items: center; }
+      .turn-head .sub { font-size: 13px; color: #7f8c8d; }
 
-      .cand {
-        flex: 0 0 auto;
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        padding: 8px;
-        background: #fbfcfd;
-        position: relative;
-      }
-      .cand.chosen {
-        border-color: #2ecc71;
-        background: #f2fbf6;
-        box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.15);
-      }
+      .quality-badge { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-left: 12px; }
+      .q-excellent { background: rgba(46, 204, 113, 0.2); color: #27ae60; border: 1px solid #2ecc71; }
+      .q-inaccuracy { background: rgba(241, 196, 15, 0.2); color: #d35400; border: 1px solid #f1c40f; }
+      .q-blunder { background: rgba(231, 76, 60, 0.2); color: #c0392b; border: 1px solid #e74c3c; }
 
-      .mini-board {
-        display: grid;
-        grid-template-columns: repeat(3, 26px);
-        grid-auto-rows: 26px;
-        gap: 3px;
-      }
-      .mini-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 17px;
-        font-weight: 700;
-        background: #eef1f4;
-        border-radius: 5px;
-        color: #333;
-      }
-      .mini-cell.x {
-        color: #3498db;
-      }
-      .mini-cell.o {
-        color: #e74c3c;
-      }
-      .mini-cell.hl {
-        outline: 2px solid #2ecc71;
-        outline-offset: -2px;
-      }
+      .cand-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+      .cand-row::-webkit-scrollbar { height: 8px; }
+      .cand-row::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+      .cand-row::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
 
-      .val {
-        margin-top: 7px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #2c3e50;
-        text-align: center;
-      }
-      .val-bar {
-        height: 5px;
-        border-radius: 3px;
-        margin-top: 4px;
-        background: #d0d7de;
-      }
-      .val-bar > div {
-        height: 100%;
-        border-radius: 3px;
-      }
+      .cand { flex: 0 0 auto; border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 10px; background: rgba(255, 255, 255, 0.6); position: relative; transition: transform 0.2s; }
+      .cand:hover { transform: translateY(-2px); }
+      .cand.chosen { border-color: #2ecc71; background: rgba(46, 204, 113, 0.15); box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2); }
 
-      .badge {
-        display: inline-block;
-        font-size: 10px;
-        font-weight: 600;
-        padding: 1px 6px;
-        border-radius: 6px;
-        margin-top: 6px;
-      }
-      .badge.chosen {
-        background: #2ecc71;
-        color: white;
-      }
-      .badge.default {
-        background: #f39c12;
-        color: white;
-      }
-      .badge-slot {
-        text-align: center;
-        min-height: 20px;
-      }
+      .mini-board { display: grid; grid-template-columns: repeat(3, 28px); grid-auto-rows: 28px; gap: 4px; }
+      .mini-cell { display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; background: rgba(255, 255, 255, 0.8); border-radius: 6px; color: #333; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+      .mini-cell.x { color: #2980b9; }
+      .mini-cell.o { color: #c0392b; }
+      .mini-cell.hl { outline: 2px solid #2ecc71; outline-offset: -2px; background: #e8f8f5; }
+
+      .val { margin-top: 8px; font-size: 14px; font-weight: 700; text-align: center; }
+      .val-bar { height: 6px; border-radius: 3px; margin-top: 5px; background: rgba(0,0,0,0.1); overflow: hidden; }
+      .val-bar > div { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+
+      .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-top: 8px; }
+      .badge.chosen { background: #2ecc71; color: white; }
+      .badge.default { background: #f39c12; color: white; }
+      .badge-slot { text-align: center; min-height: 24px; }
     </style>
   </head>
   <body>
-    <h1>Tic-Tac-Toe AI</h1>
-    <p id="status"></p>
-
-    <div class="board-container">
+    <h1>Tic-Tac-Toe </h1>
+    <p id="status">😎 Choose mode to start!</p>
+    
+    <div class="board-container" id="board-container">
       <div id="board"></div>
     </div>
-
+    
     <div class="controls">
-      <button class="play-btn x-btn" onclick="newGame(1)">Play as X</button>
-      <button class="play-btn o-btn" onclick="newGame(2)">Play as O</button>
-      <button
-        id="inspectBtn"
-        class="play-btn inspect-btn"
-        style="display: none"
-        onclick="inspect()"
-      >
-        Inspect bot's choices
-      </button>
+      <button id="btn-1" class="play-btn" onclick="newGame('PVE', 1)">👤 vs Bot (X)</button>
+      <button id="btn-2" class="play-btn" onclick="newGame('PVE', 2)">👤 vs Bot (O)</button>
+      <button id="btn-pvp" class="play-btn" onclick="newGame('PVP')">👥 2 Players (Local)</button>
+    </div>
+    <div class="controls" style="margin-top: 0;">
+      <button id="inspectBtn" class="play-btn inspect-btn" style="display: none" onclick="inspect()">🔍 Match Analysis</button>
     </div>
 
     <div id="review"></div>
 
     <script>
       const SYMBOLS = { 0: "", 1: "X", 2: "O" };
+      const WIN_STATES = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
 
-      let board = [];
+      let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       let history = [];
       let gameOver = false;
+      
+      let GAME_MODE = 'PVE'; 
       let HUMAN = 1;
       let BOT = 2;
+      let currentTurn = 1; 
+      let isBotThinking = false;
 
-      function drawBoard() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+      function playTone(freq, type, duration) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.stop(audioCtx.currentTime + duration);
+      }
+      function sfxClickHuman() { playTone(600, 'sine', 0.15); }
+      function sfxClickBot() { playTone(400, 'square', 0.15); }
+      function sfxWin() { playTone(800, 'triangle', 0.1); setTimeout(() => playTone(1200, 'triangle', 0.4), 100); }
+      function sfxLose() { playTone(200, 'sawtooth', 0.5); }
+      function sfxDraw() { playTone(500, 'sine', 0.3); }
+
+      function drawBoard(winningCells = []) {
         const boardDiv = document.getElementById("board");
         boardDiv.innerHTML = "";
         for (let i = 0; i < 9; i++) {
           const cell = document.createElement("button");
           cell.className = "cell";
-
           if (board[i] === 1) cell.classList.add("x");
           if (board[i] === 2) cell.classList.add("o");
-
+          if (winningCells.includes(i)) cell.classList.add("win-glow");
           cell.textContent = SYMBOLS[board[i]];
-          cell.onclick = function () {
-            play(i);
-          };
+          cell.onclick = function () { play(i); };
           boardDiv.appendChild(cell);
         }
       }
 
+      function checkWinLine() {
+        for (let w of WIN_STATES) {
+          if (board[w[0]] !== 0 && board[w[0]] === board[w[1]] && board[w[1]] === board[w[2]]) {
+            return w;
+          }
+        }
+        return [];
+      }
+
+      function getLocalGameState() {
+        let win = checkWinLine();
+        if (win.length > 0) {
+            let winner = board[win[0]];
+            if (GAME_MODE === 'PVE') return winner === HUMAN ? "human" : "bot";
+            else return winner === 1 ? "p1_win" : "p2_win";
+        }
+        if (!board.includes(0)) return "draw";
+        return "ongoing";
+      }
+
       function showStatus(status) {
         const p = document.getElementById("status");
-        const symbol = SYMBOLS[HUMAN];
-
-        p.style.color = "#7f8c8d";
-        gameOver = status === "human" || status === "bot" || status === "draw";
+        const container = document.getElementById("board-container");
+        
+        p.style.color = "#34495e";
+        gameOver = status !== "ongoing" && status !== "thinking";
 
         if (status === "human") {
-          p.textContent = "🎉 You win!";
-          p.style.color = "#2ecc71";
+          p.textContent = "🎉 Wow, you actually won!";
+          p.style.color = "#27ae60";
+          sfxWin(); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+          drawBoard(checkWinLine());
         } else if (status === "bot") {
-          p.textContent = "💀 Bot wins!";
-          p.style.color = "#e74c3c";
+          p.textContent = "💀 The Bot crushed you!";
+          p.style.color = "#c0392b";
+          sfxLose(); container.classList.add("shake"); setTimeout(() => container.classList.remove("shake"), 500);
+          drawBoard(checkWinLine());
+        } else if (status === "p1_win") {
+          p.textContent = "🎉 Player 1 (X) wins!";
+          p.style.color = "#2980b9";
+          sfxWin(); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+          drawBoard(checkWinLine());
+        } else if (status === "p2_win") {
+          p.textContent = "🎉 Player 2 (O) wins!";
+          p.style.color = "#c0392b";
+          sfxWin(); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+          drawBoard(checkWinLine());
         } else if (status === "draw") {
-          p.textContent = "🤝 It's a draw!";
-          p.style.color = "#f39c12";
+          p.textContent = "🤝 It's a draw! Solid defense.";
+          p.style.color = "#d35400";
+          sfxDraw(); confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } }); 
+        } else if (status === "thinking") {
+          p.textContent = "🤔 Bot is calculating...";
+          p.style.color = "#2980b9";
         } else {
-          p.textContent = "Your turn (" + symbol + ")";
+          if (GAME_MODE === 'PVE') {
+              p.textContent = "😎 Your turn (" + SYMBOLS[HUMAN] + ")";
+          } else {
+              p.textContent = "🎮 Turn: Player " + currentTurn + " (" + SYMBOLS[currentTurn] + ")";
+          }
         }
 
         const btn = document.getElementById("inspectBtn");
-        const botMoved = history.some((m) => m.player === BOT);
-        btn.style.display = gameOver && botMoved ? "inline-block" : "none";
+        btn.style.display = gameOver && history.length > 0 ? "inline-block" : "none";
       }
 
       async function play(cell) {
-        if (gameOver || board[cell] !== 0) return;
+        if (gameOver || board[cell] !== 0 || isBotThinking) return;
 
-        board[cell] = HUMAN;
-        history.push({ player: HUMAN, pos: cell });
-        drawBoard();
+        if (GAME_MODE === 'PVP') {
+            board[cell] = currentTurn;
+            history.push({ player: currentTurn, pos: cell });
+            if (currentTurn === 1) sfxClickHuman(); else sfxClickBot();
+            drawBoard();
 
-        const response = await fetch("/move", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ board: board, bot_player: BOT }),
-        });
-        const data = await response.json();
+            let state = getLocalGameState();
+            if (state !== "ongoing") {
+                showStatus(state);
+            } else {
+                currentTurn = currentTurn === 1 ? 2 : 1;
+                showStatus("ongoing");
+            }
+        } else {
+            // PVE Mode
+            board[cell] = HUMAN;
+            history.push({ player: HUMAN, pos: cell });
+            sfxClickHuman();
+            drawBoard();
+            
+            let state = getLocalGameState();
+            if (state !== "ongoing") {
+                showStatus(state);
+                return;
+            }
 
-        if (data.bot_move !== null) {
-          history.push({ player: BOT, pos: data.bot_move });
+            isBotThinking = true;
+            showStatus("thinking");
+
+            setTimeout(async () => {
+                const response = await fetch("/move", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ board: board, bot_player: BOT }),
+                });
+                const data = await response.json();
+
+                if (data.bot_move !== null && data.bot_move !== undefined) {
+                    history.push({ player: BOT, pos: data.bot_move });
+                }
+                board = data.board;
+                
+                if (!gameOver && data.status === "ongoing") sfxClickBot();
+                drawBoard();
+                showStatus(data.status);
+                isBotThinking = false;
+            }, 500); 
         }
-        board = data.board;
-        drawBoard();
-        showStatus(data.status);
       }
 
       async function botFirstMove() {
-        const response = await fetch("/move", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ board: board, bot_player: BOT }),
-        });
-        const data = await response.json();
-        if (data.bot_move !== null) {
-          history.push({ player: BOT, pos: data.bot_move });
-        }
-        board = data.board;
-        drawBoard();
-        showStatus(data.status);
+        isBotThinking = true;
+        showStatus("thinking");
+        setTimeout(async () => {
+            const response = await fetch("/move", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ board: board, bot_player: BOT }),
+            });
+            const data = await response.json();
+            if (data.bot_move !== null && data.bot_move !== undefined) {
+                history.push({ player: BOT, pos: data.bot_move });
+            }
+            board = data.board;
+            sfxClickBot(); drawBoard(); showStatus(data.status);
+            isBotThinking = false;
+        }, 600);
       }
 
-      function newGame(side) {
+      function newGame(mode, side) {
+        GAME_MODE = mode;
         board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
         history = [];
         gameOver = false;
+        isBotThinking = false;
+        
         HUMAN = side || 1;
         BOT = HUMAN === 1 ? 2 : 1;
+        currentTurn = 1;
+
+        document.getElementById("btn-1").classList.toggle("active", mode === 'PVE' && side === 1);
+        document.getElementById("btn-2").classList.toggle("active", mode === 'PVE' && side === 2);
+        document.getElementById("btn-pvp").classList.toggle("pvp-active", mode === 'PVP');
+        
         document.getElementById("review").innerHTML = "";
+        document.getElementById("board-container").classList.remove("shake");
+        
         drawBoard();
         showStatus("ongoing");
-        if (BOT === 1) botFirstMove();
+        if (mode === 'PVE' && BOT === 1) botFirstMove();
       }
 
       function valueColor(v) {
-        const hue = Math.max(0, Math.min(1, v)) * 120; // 0=red .. 120=green
+        const hue = Math.max(0, Math.min(1, v)) * 120;
         return "hsl(" + hue + ", 65%, 45%)";
       }
 
@@ -417,7 +460,6 @@
       function candidateCard(c) {
         const card = document.createElement("div");
         card.className = "cand" + (c.chosen ? " chosen" : "");
-
         card.appendChild(miniBoard(c.afterstate, c.move));
 
         const val = document.createElement("div");
@@ -429,8 +471,7 @@
         const bar = document.createElement("div");
         bar.className = "val-bar";
         const fill = document.createElement("div");
-        fill.style.width =
-          Math.round(Math.max(0, Math.min(1, c.value)) * 100) + "%";
+        fill.style.width = Math.round(Math.max(0, Math.min(1, c.value)) * 100) + "%";
         fill.style.background = valueColor(c.value);
         bar.appendChild(fill);
         card.appendChild(bar);
@@ -449,7 +490,6 @@
           slot.appendChild(b);
         }
         card.appendChild(slot);
-
         return card;
       }
 
@@ -458,29 +498,31 @@
         root.innerHTML = "";
 
         const h = document.createElement("h2");
-        h.textContent =
-          "Bot's decision tree (" + SYMBOLS[data.bot_player] + ")";
+        h.textContent = GAME_MODE === 'PVE' ? "Full Match Analysis" : "Match Review";
         root.appendChild(h);
 
         const legend = document.createElement("div");
         legend.className = "legend";
         legend.innerHTML =
-          '<span><span class="swatch" style="background:hsl(120,65%,45%)"></span>1.0 = bot wins</span>' +
-          '<span><span class="swatch" style="background:hsl(60,65%,45%)"></span>0.5 = draw</span>' +
-          '<span><span class="swatch" style="background:hsl(0,65%,45%)"></span>0.0 = bot loses</span>' +
-          '<span><span class="swatch" style="background:#f39c12"></span>default = unlearned state</span>';
+          '<span><span class="swatch" style="background:hsl(120,65%,45%)"></span>1.0 = Win</span>' +
+          '<span><span class="swatch" style="background:hsl(60,65%,45%)"></span>0.5 = Draw</span>' +
+          '<span><span class="swatch" style="background:hsl(0,65%,45%)"></span>0.0 = Loss</span>' +
+          '<span><span class="swatch" style="background:#f39c12"></span>Default = Unlearned</span>';
         root.appendChild(legend);
 
-        if (!data.decisions.length) {
-          const p = document.createElement("p");
-          p.textContent = "The bot made no decisions in this game.";
-          root.appendChild(p);
-          return;
-        }
+        if (!data.decisions.length) return;
 
-        data.decisions.forEach((d, idx) => {
+        data.decisions.forEach((d) => {
           const turn = document.createElement("div");
-          turn.className = "turn";
+          
+          let playerName = "";
+          if (GAME_MODE === 'PVP') {
+              playerName = `Player ${d.player}`;
+              turn.className = "turn " + (d.player === 1 ? "p1-turn" : "p2-turn");
+          } else {
+              playerName = d.is_human ? "You" : "Bot";
+              turn.className = "turn " + (d.is_human ? "p1-turn" : "p2-turn"); 
+          }
 
           const head = document.createElement("div");
           head.className = "turn-head";
@@ -489,13 +531,14 @@
           const meta = document.createElement("div");
           const label = document.createElement("div");
           label.className = "label";
-          label.textContent =
-            "Bot decision " + (idx + 1) + " (move #" + d.ply + ")";
+          
+          const playerSymbol = SYMBOLS[d.player];
+          label.innerHTML = `Move #${d.ply}: ${playerName} (${playerSymbol}) <span class="quality-badge ${d.q_class}">${d.quality}</span>`;
+          
           const sub = document.createElement("div");
           sub.className = "sub";
-          sub.textContent =
-            d.candidates.length +
-            " legal moves \u00b7 ranked by estimated value \u00b7 highlighted cell = where the mark goes";
+          sub.textContent = d.candidates.length + " legal moves \u00b7 evaluated by TD(0) Algorithm";
+          
           meta.appendChild(label);
           meta.appendChild(sub);
           head.appendChild(meta);
@@ -511,19 +554,25 @@
       }
 
       async function inspect() {
+        const btn = document.getElementById("inspectBtn");
+        const originalText = btn.textContent;
+        btn.textContent = "⏳ Calculating...";
+        btn.disabled = true;
+        
         const response = await fetch("/review", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ moves: history, bot_player: BOT }),
+          body: JSON.stringify({ moves: history, bot_player: BOT }), 
         });
         const data = await response.json();
+        
+        btn.textContent = originalText;
+        btn.disabled = false;
         renderReview(data);
-        document
-          .getElementById("review")
-          .scrollIntoView({ behavior: "smooth" });
+        document.getElementById("review").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
-      newGame(1);
+      newGame('PVE', 1);
     </script>
   </body>
 </html>
