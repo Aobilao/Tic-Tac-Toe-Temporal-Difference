@@ -11,14 +11,8 @@ app = Flask(__name__)
 here = os.path.dirname(__file__)
 tables = pickle.load(open(os.path.join(here, "values.pkl"), "rb"))
 
-bot_x = Agent(X)
-bot_x.values = tables["X"]
-bot_x.epsilon = 0
-
-bot_o = Agent(O)
-bot_o.values = tables["O"]
-bot_o.epsilon = 0
-
+bot_x = Agent(X, tables["X"])
+bot_o = Agent(O, tables["O"])
 bots = {X: bot_x, O: bot_o}
 
 

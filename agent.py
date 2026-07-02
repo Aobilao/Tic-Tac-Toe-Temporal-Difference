@@ -35,12 +35,16 @@ def reward(winner: Player, player: Player):
 
 class Agent:
     def __init__(
-        self, player: Player, learning_rate: float = 0.1, exploration_prob: float = 0.1
+        self,
+        player: Player,
+        alpha: float = 0.1,
+        epsilon: float = 0.0,
+        values: dict[Board, float] | None = None,
     ) -> None:
         self.player = player
-        self.alpha = learning_rate
-        self.epsilon = exploration_prob
-        self.values: dict[Board, float] = {}
+        self.alpha = alpha
+        self.epsilon = epsilon
+        self.values: dict[Board, float] = {} if values is None else values
 
     def get_value(self, board: Board) -> float:
         canonical_board = get_canonical(board)

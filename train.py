@@ -25,9 +25,15 @@ def play_game(
     return state_history, game.winner()
 
 
-def train(agent_x: Agent, agent_o: Agent, rounds: int):
+def train(
+    agent_x: Agent,
+    agent_o: Agent,
+    rounds: int,
+    epsilon_start: float = 0.3,
+    epsilon_end: float = 0.0,
+) -> None:
     for round in range(rounds):
-        epsilon = 0.3 * (1 - round / rounds)
+        epsilon = epsilon_start + (epsilon_end - epsilon_start) * (round / rounds)
         agent_x.epsilon = epsilon
         agent_o.epsilon = epsilon
 
@@ -99,5 +105,6 @@ if __name__ == "__main__":
     print(
         f"Win probability: {win_o / GAMES_AGAINST_RANDOM}, loss probability: {lose_o / GAMES_AGAINST_RANDOM}"
     )
-    print(f"Total canonical positions explored: {len(agent_x.values)}")
+    print(f"Total canonical positions explored for X: {len(agent_x.values)}")
+    print(f"Total canonical positions explored for O: {len(agent_o.values)}")
     save(agent_x, agent_o)
