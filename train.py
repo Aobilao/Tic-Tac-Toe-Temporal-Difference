@@ -51,7 +51,8 @@ def save(agent_x: Agent, agent_o: Agent, path: str = "values.pkl") -> None:
 
 def load(path: str = "values.pkl"):
     dir = os.path.dirname(__file__)
-    return pickle.load(open(os.path.join(dir, path), "rb"))
+    with open(os.path.join(dir, path), "rb") as f:
+        return pickle.load(f)
 
 
 def play_against_random(
@@ -96,14 +97,12 @@ if __name__ == "__main__":
     win_x, draw_x, lose_x = play_against_random(agent_x, X, GAMES_AGAINST_RANDOM)
     win_o, draw_o, lose_o = play_against_random(agent_o, O, GAMES_AGAINST_RANDOM)
 
-    print("Against random:")
-    print("X:")
+    print("Against random")
     print(
-        f"Win probability: {win_x / GAMES_AGAINST_RANDOM}, loss probability: {lose_x / GAMES_AGAINST_RANDOM}"
+        f"X: Win probability: {win_x / GAMES_AGAINST_RANDOM}, loss probability: {lose_x / GAMES_AGAINST_RANDOM}"
     )
-    print("O:")
     print(
-        f"Win probability: {win_o / GAMES_AGAINST_RANDOM}, loss probability: {lose_o / GAMES_AGAINST_RANDOM}"
+        f"O: Win probability: {win_o / GAMES_AGAINST_RANDOM}, loss probability: {lose_o / GAMES_AGAINST_RANDOM}"
     )
     print(f"Total canonical positions explored for X: {len(agent_x.values)}")
     print(f"Total canonical positions explored for O: {len(agent_o.values)}")

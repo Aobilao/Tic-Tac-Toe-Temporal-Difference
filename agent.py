@@ -9,9 +9,9 @@ DRAW_REWARD = 0.5
 # 8 phép biến đổi đối xứng của bàn cờ 3x3
 SYM_INDICES = [
     (0, 1, 2, 3, 4, 5, 6, 7, 8),  # Gốc
-    (6, 3, 0, 7, 4, 1, 8, 5, 2),  # Xoay 90
-    (8, 7, 6, 5, 4, 3, 2, 1, 0),  # Xoay 180
-    (2, 5, 8, 1, 4, 7, 0, 3, 6),  # Xoay 270
+    (6, 3, 0, 7, 4, 1, 8, 5, 2),  # Xoay 90 theo chiều kim đồng hồ
+    (8, 7, 6, 5, 4, 3, 2, 1, 0),  # Xoay 180 theo chiều kim đồng hồ
+    (2, 5, 8, 1, 4, 7, 0, 3, 6),  # Xoay 270 theo chiều kim đồng hồ
     (2, 1, 0, 5, 4, 3, 8, 7, 6),  # Lật dọc
     (6, 7, 8, 3, 4, 5, 0, 1, 2),  # Lật ngang
     (0, 3, 6, 1, 4, 7, 2, 5, 8),  # Chéo chính
@@ -51,7 +51,7 @@ class Agent:
 
         if canonical_board not in self.values:
             if canonical_board[4] == self.player:
-                return 0.6
+                return min(DEFAULT_VALUE + 0.1, 1.0)
             return DEFAULT_VALUE
 
         return self.values[canonical_board]
@@ -80,13 +80,13 @@ class Agent:
         best_moves = [e["move"] for e in evaluations if e["value"] == best_val]
         return random.choice(best_moves)
 
-    def update(self, board: Board, reward: float) -> None:
+    def update(self, board: Board, target_reward: float) -> None:
         canonical_board = get_canonical(board)
         old = self.get_value(canonical_board)
-        self.values[canonical_board] = old + self.alpha * (reward - old)
+        self.values[canonical_board] = old + self.alpha * (target_reward - old)
 
-    def train_from_game(self, boards: list[Board], reward: float) -> None:
-        target = reward
+    def train_from_game(self, boards: list[Board], target_reward: float) -> None:
+        target = target_reward
         for board in reversed(boards):
             self.update(board, target)
             target = self.get_value(board)
