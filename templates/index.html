@@ -13,7 +13,7 @@
         color: #333;
         text-align: center;
         margin: 0;
-        padding-top: 50px;
+        padding: 50px 16px 80px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -111,6 +111,11 @@
         box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
       }
 
+      button.play-btn.inspect-btn {
+        background-color: #34495e;
+        box-shadow: 0 4px 6px rgba(52, 73, 94, 0.3);
+      }
+
       button.play-btn:hover {
         filter: brightness(1.1);
         transform: translateY(-2px);
@@ -118,6 +123,150 @@
 
       button.play-btn:active {
         transform: translateY(0);
+      }
+
+      #review {
+        margin-top: 36px;
+        width: 100%;
+        max-width: 900px;
+      }
+
+      #review h2 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .legend {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 22px;
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+
+      .turn {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        padding: 18px;
+        margin-bottom: 14px;
+        text-align: left;
+      }
+      .turn-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      .turn-head .label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 15px;
+      }
+      .turn-head .sub {
+        font-size: 12px;
+        color: #95a5a6;
+      }
+
+      .cand-row {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+      }
+
+      .cand {
+        flex: 0 0 auto;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 8px;
+        background: #fbfcfd;
+        position: relative;
+      }
+      .cand.chosen {
+        border-color: #2ecc71;
+        background: #f2fbf6;
+        box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.15);
+      }
+
+      .mini-board {
+        display: grid;
+        grid-template-columns: repeat(3, 26px);
+        grid-auto-rows: 26px;
+        gap: 3px;
+      }
+      .mini-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        font-weight: 700;
+        background: #eef1f4;
+        border-radius: 5px;
+        color: #333;
+      }
+      .mini-cell.x {
+        color: #3498db;
+      }
+      .mini-cell.o {
+        color: #e74c3c;
+      }
+      .mini-cell.hl {
+        outline: 2px solid #2ecc71;
+        outline-offset: -2px;
+      }
+
+      .val {
+        margin-top: 7px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+        text-align: center;
+      }
+      .val-bar {
+        height: 5px;
+        border-radius: 3px;
+        margin-top: 4px;
+        background: #d0d7de;
+      }
+      .val-bar > div {
+        height: 100%;
+        border-radius: 3px;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 1px 6px;
+        border-radius: 6px;
+        margin-top: 6px;
+      }
+      .badge.chosen {
+        background: #2ecc71;
+        color: white;
+      }
+      .badge.default {
+        background: #f39c12;
+        color: white;
+      }
+      .badge-slot {
+        text-align: center;
+        min-height: 20px;
       }
     </style>
   </head>
@@ -132,12 +281,23 @@
     <div class="controls">
       <button class="play-btn x-btn" onclick="newGame(1)">Play as X</button>
       <button class="play-btn o-btn" onclick="newGame(2)">Play as O</button>
+      <button
+        id="inspectBtn"
+        class="play-btn inspect-btn"
+        style="display: none"
+        onclick="inspect()"
+      >
+        Inspect bot's choices
+      </button>
     </div>
+
+    <div id="review"></div>
 
     <script>
       const SYMBOLS = { 0: "", 1: "X", 2: "O" };
 
       let board = [];
+      let history = [];
       let gameOver = false;
       let HUMAN = 1;
       let BOT = 2;
@@ -165,28 +325,31 @@
         const symbol = SYMBOLS[HUMAN];
 
         p.style.color = "#7f8c8d";
+        gameOver = status === "human" || status === "bot" || status === "draw";
 
         if (status === "human") {
           p.textContent = "🎉 You win!";
           p.style.color = "#2ecc71";
-          gameOver = true;
         } else if (status === "bot") {
           p.textContent = "💀 Bot wins!";
           p.style.color = "#e74c3c";
-          gameOver = true;
         } else if (status === "draw") {
           p.textContent = "🤝 It's a draw!";
           p.style.color = "#f39c12";
-          gameOver = true;
         } else {
           p.textContent = "Your turn (" + symbol + ")";
         }
+
+        const btn = document.getElementById("inspectBtn");
+        const botMoved = history.some((m) => m.player === BOT);
+        btn.style.display = gameOver && botMoved ? "inline-block" : "none";
       }
 
       async function play(cell) {
         if (gameOver || board[cell] !== 0) return;
 
         board[cell] = HUMAN;
+        history.push({ player: HUMAN, pos: cell });
         drawBoard();
 
         const response = await fetch("/move", {
@@ -196,6 +359,9 @@
         });
         const data = await response.json();
 
+        if (data.bot_move !== null) {
+          history.push({ player: BOT, pos: data.bot_move });
+        }
         board = data.board;
         drawBoard();
         showStatus(data.status);
@@ -208,6 +374,9 @@
           body: JSON.stringify({ board: board, bot_player: BOT }),
         });
         const data = await response.json();
+        if (data.bot_move !== null) {
+          history.push({ player: BOT, pos: data.bot_move });
+        }
         board = data.board;
         drawBoard();
         showStatus(data.status);
@@ -215,16 +384,146 @@
 
       function newGame(side) {
         board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        history = [];
         gameOver = false;
         HUMAN = side || 1;
         BOT = HUMAN === 1 ? 2 : 1;
+        document.getElementById("review").innerHTML = "";
         drawBoard();
         showStatus("ongoing");
         if (BOT === 1) botFirstMove();
+      }
+
+      function valueColor(v) {
+        const hue = Math.max(0, Math.min(1, v)) * 120; // 0=red .. 120=green
+        return "hsl(" + hue + ", 65%, 45%)";
+      }
+
+      function miniBoard(cells, highlight) {
+        const wrap = document.createElement("div");
+        wrap.className = "mini-board";
+        for (let i = 0; i < 9; i++) {
+          const c = document.createElement("div");
+          c.className = "mini-cell";
+          if (cells[i] === 1) c.classList.add("x");
+          if (cells[i] === 2) c.classList.add("o");
+          if (i === highlight) c.classList.add("hl");
+          c.textContent = SYMBOLS[cells[i]];
+          wrap.appendChild(c);
+        }
+        return wrap;
+      }
+
+      function candidateCard(c) {
+        const card = document.createElement("div");
+        card.className = "cand" + (c.chosen ? " chosen" : "");
+
+        card.appendChild(miniBoard(c.afterstate, c.move));
+
+        const val = document.createElement("div");
+        val.className = "val";
+        val.textContent = c.value.toFixed(3);
+        val.style.color = valueColor(c.value);
+        card.appendChild(val);
+
+        const bar = document.createElement("div");
+        bar.className = "val-bar";
+        const fill = document.createElement("div");
+        fill.style.width =
+          Math.round(Math.max(0, Math.min(1, c.value)) * 100) + "%";
+        fill.style.background = valueColor(c.value);
+        bar.appendChild(fill);
+        card.appendChild(bar);
+
+        const slot = document.createElement("div");
+        slot.className = "badge-slot";
+        if (c.chosen) {
+          const b = document.createElement("span");
+          b.className = "badge chosen";
+          b.textContent = "chosen";
+          slot.appendChild(b);
+        } else if (!c.visited) {
+          const b = document.createElement("span");
+          b.className = "badge default";
+          b.textContent = "default";
+          slot.appendChild(b);
+        }
+        card.appendChild(slot);
+
+        return card;
+      }
+
+      function renderReview(data) {
+        const root = document.getElementById("review");
+        root.innerHTML = "";
+
+        const h = document.createElement("h2");
+        h.textContent =
+          "Bot's decision tree (" + SYMBOLS[data.bot_player] + ")";
+        root.appendChild(h);
+
+        const legend = document.createElement("div");
+        legend.className = "legend";
+        legend.innerHTML =
+          '<span><span class="swatch" style="background:hsl(120,65%,45%)"></span>1.0 = bot wins</span>' +
+          '<span><span class="swatch" style="background:hsl(60,65%,45%)"></span>0.5 = draw</span>' +
+          '<span><span class="swatch" style="background:hsl(0,65%,45%)"></span>0.0 = bot loses</span>' +
+          '<span><span class="swatch" style="background:#f39c12"></span>default = unlearned state</span>';
+        root.appendChild(legend);
+
+        if (!data.decisions.length) {
+          const p = document.createElement("p");
+          p.textContent = "The bot made no decisions in this game.";
+          root.appendChild(p);
+          return;
+        }
+
+        data.decisions.forEach((d, idx) => {
+          const turn = document.createElement("div");
+          turn.className = "turn";
+
+          const head = document.createElement("div");
+          head.className = "turn-head";
+          head.appendChild(miniBoard(d.board_before, -1));
+
+          const meta = document.createElement("div");
+          const label = document.createElement("div");
+          label.className = "label";
+          label.textContent =
+            "Bot decision " + (idx + 1) + " (move #" + d.ply + ")";
+          const sub = document.createElement("div");
+          sub.className = "sub";
+          sub.textContent =
+            d.candidates.length +
+            " legal moves \u00b7 ranked by estimated value \u00b7 highlighted cell = where the mark goes";
+          meta.appendChild(label);
+          meta.appendChild(sub);
+          head.appendChild(meta);
+          turn.appendChild(head);
+
+          const row = document.createElement("div");
+          row.className = "cand-row";
+          d.candidates.forEach((c) => row.appendChild(candidateCard(c)));
+          turn.appendChild(row);
+
+          root.appendChild(turn);
+        });
+      }
+
+      async function inspect() {
+        const response = await fetch("/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ moves: history, bot_player: BOT }),
+        });
+        const data = await response.json();
+        renderReview(data);
+        document
+          .getElementById("review")
+          .scrollIntoView({ behavior: "smooth" });
       }
 
       newGame(1);
     </script>
   </body>
 </html>
-

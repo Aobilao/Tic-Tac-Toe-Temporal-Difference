@@ -52,21 +52,29 @@ class Agent:
 
         return self.values[canonical_board]
 
+    def evaluate_moves(self, game: Game) -> list[dict]:
+        evaluations = []
+        for move in game.valid_moves:
+            afterstate = game.board_after_move(self.player, move)
+            visited = get_canonical(afterstate) in self.values
+            evaluations.append(
+                {
+                    "move": move,
+                    "afterstate": list(afterstate),
+                    "value": self.get_value(afterstate),
+                    "visited": visited,
+                }
+            )
+        return evaluations
+
     def choose_move(self, game: Game) -> int:
         if random.random() <= self.epsilon:
             return random.choice(game.valid_moves)
-        else:
-            best_val = float("-inf")
-            best_moves = []
-            for move in game.valid_moves:
-                new_board = game.board_after_move(self.player, move)
-                val = self.get_value(new_board)
-                if val > best_val:
-                    best_val = val
-                    best_moves = [move]
-                elif val == best_val:
-                    best_moves.append(move)
-            return random.choice(best_moves)
+
+        evaluations = self.evaluate_moves(game)
+        best_val = max(e["value"] for e in evaluations)
+        best_moves = [e["move"] for e in evaluations if e["value"] == best_val]
+        return random.choice(best_moves)
 
     def update(self, board: Board, reward: float) -> None:
         canonical_board = get_canonical(board)
@@ -78,4 +86,3 @@ class Agent:
         for board in reversed(boards):
             self.update(board, target)
             target = self.get_value(board)
-

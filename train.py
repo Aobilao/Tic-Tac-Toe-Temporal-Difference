@@ -4,6 +4,9 @@ import pickle
 import random
 import os
 
+GAMES_AGAINST_RANDOM = 1000
+TRAINING_ROUNDS = 100000
+
 
 def play_game(
     agent_x: Agent, agent_o: Agent
@@ -82,21 +85,19 @@ if __name__ == "__main__":
     agent_x = Agent(X)
     agent_o = Agent(O)
 
-    train(agent_x, agent_o, 100000)
+    train(agent_x, agent_o, TRAINING_ROUNDS)
 
-    games_against_random = 1000
-    win_x, draw_x, lose_x = play_against_random(agent_x, X, games_against_random)
-    win_o, draw_o, lose_o = play_against_random(agent_o, O, games_against_random)
+    win_x, draw_x, lose_x = play_against_random(agent_x, X, GAMES_AGAINST_RANDOM)
+    win_o, draw_o, lose_o = play_against_random(agent_o, O, GAMES_AGAINST_RANDOM)
 
     print("Against random:")
     print("X:")
     print(
-        f"Win probability: {win_x / games_against_random}, loss probability: {lose_x / games_against_random}"
+        f"Win probability: {win_x / GAMES_AGAINST_RANDOM}, loss probability: {lose_x / GAMES_AGAINST_RANDOM}"
     )
     print("O:")
     print(
-        f"Win probability: {win_o / games_against_random}, loss probability: {lose_o / games_against_random}"
+        f"Win probability: {win_o / GAMES_AGAINST_RANDOM}, loss probability: {lose_o / GAMES_AGAINST_RANDOM}"
     )
     print(f"Total canonical positions explored: {len(agent_x.values)}")
     save(agent_x, agent_o)
-

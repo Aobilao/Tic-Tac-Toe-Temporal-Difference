@@ -23,7 +23,6 @@ bots = {X: bot_x, O: bot_o}
 
 
 def status_of(game: Game, human: int, bot: int) -> str:
-    """Describe how the game stands, for the page to display."""
     won = game.winner()
     if won == human:
         return "human"
@@ -48,14 +47,57 @@ def move():
     game = Game()
     game.update_board(tuple(data["board"]))
 
+    bot_move = None
     if not game.is_end():
-        pos = bots[bot_player].choose_move(game)
-        game.update(bot_player, pos)
+        bot_move = bots[bot_player].choose_move(game)
+        game.update(bot_player, bot_move)
 
     return jsonify(
         {
             "board": list(game.board),
+            "bot_move": bot_move,
             "status": status_of(game, human_player, bot_player),
+        }
+    )
+
+
+@app.route("/review", methods=["POST"])
+def review():
+    data = request.get_json()
+    bot_player = data["bot_player"]
+    human_player = X if bot_player == O else O
+    moves = data["moves"]
+
+    game = Game()
+    bot = bots[bot_player]
+    decisions = []
+
+    for ply, m in enumerate(moves, start=1):
+        if game.is_end():
+            break
+        player, pos = m["player"], m["pos"]
+
+        if player == bot_player:
+            candidates = bot.evaluate_moves(game)
+            for c in candidates:
+                c["chosen"] = c["move"] == pos
+            candidates.sort(key=lambda c: c["value"], reverse=True)
+            decisions.append(
+                {
+                    "ply": ply,
+                    "board_before": list(game.board),
+                    "chosen_move": pos,
+                    "candidates": candidates,
+                }
+            )
+
+        game.update(player, pos)
+
+    return jsonify(
+        {
+            "bot_player": bot_player,
+            "result": status_of(game, human_player, bot_player),
+            "decisions": decisions,
         }
     )
 
