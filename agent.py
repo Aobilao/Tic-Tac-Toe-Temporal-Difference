@@ -15,12 +15,14 @@ SYM_INDICES = [
     (2, 1, 0, 5, 4, 3, 8, 7, 6),  # Lật dọc
     (6, 7, 8, 3, 4, 5, 0, 1, 2),  # Lật ngang
     (0, 3, 6, 1, 4, 7, 2, 5, 8),  # Chéo chính
-    (8, 5, 2, 7, 4, 1, 6, 3, 0)   # Chéo phụ
+    (8, 5, 2, 7, 4, 1, 6, 3, 0),  # Chéo phụ
 ]
+
 
 def get_canonical(board: Board) -> Board:
     syms = [tuple(board[i] for i in idx) for idx in SYM_INDICES]
     return min(syms)
+
 
 def reward(winner: Player, player: Player):
     if winner == player:
@@ -29,6 +31,7 @@ def reward(winner: Player, player: Player):
         return DRAW_REWARD
     else:
         return LOSS_REWARD
+
 
 class Agent:
     def __init__(
@@ -41,12 +44,12 @@ class Agent:
 
     def get_value(self, board: Board) -> float:
         canonical_board = get_canonical(board)
-        
+
         if canonical_board not in self.values:
             if canonical_board[4] == self.player:
-                return 0.6 
+                return 0.6
             return DEFAULT_VALUE
-            
+
         return self.values[canonical_board]
 
     def choose_move(self, game: Game) -> int:
@@ -75,3 +78,4 @@ class Agent:
         for board in reversed(boards):
             self.update(board, target)
             target = self.get_value(board)
+
