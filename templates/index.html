@@ -1,51 +1,137 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Tic-Tac-Toe vs Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe TD Learning Bot</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
       body {
-        font-family: sans-serif;
+        font-family: "Poppins", sans-serif;
+        background-color: #f0f4f8;
+        color: #333;
         text-align: center;
-        margin-top: 40px;
+        margin: 0;
+        padding-top: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
+
+      h1 {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+
       #status {
-        font-size: 20px;
-        margin-bottom: 15px;
-        height: 24px;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 25px;
+        height: 30px;
+        color: #7f8c8d;
+        transition: color 0.3s ease;
       }
+
+      .board-container {
+        background: white;
+        padding: 15px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+
       #board {
         display: grid;
-        grid-template-columns: repeat(3, 90px);
-        gap: 6px;
+        grid-template-columns: repeat(3, 100px);
+        gap: 10px;
         justify-content: center;
       }
+
       .cell {
-        width: 90px;
-        height: 90px;
-        font-size: 44px;
-        background: #eee;
-        border: none;
+        width: 100px;
+        height: 100px;
+        font-size: 55px;
+        font-family: "Poppins", sans-serif;
+        font-weight: 700;
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        outline: none;
       }
+
       .cell:hover {
-        background: #ddd;
+        background: #e2e6ea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       }
-      #reset {
-        margin-top: 20px;
-        padding: 8px 18px;
+
+      .cell.x {
+        color: #3498db;
+      }
+
+      .cell.o {
+        color: #e74c3c;
+      }
+
+      .controls {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+      }
+
+      button.play-btn {
+        padding: 12px 24px;
         font-size: 16px;
+        font-weight: 600;
+        font-family: "Poppins", sans-serif;
+        color: white;
+        background-color: #2ecc71;
+        border: none;
+        border-radius: 8px;
         cursor: pointer;
+        transition:
+          background-color 0.3s ease,
+          transform 0.1s;
+        box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+      }
+
+      button.play-btn.x-btn {
+        background-color: #3498db;
+        box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+      }
+
+      button.play-btn.o-btn {
+        background-color: #e74c3c;
+        box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+      }
+
+      button.play-btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+      }
+
+      button.play-btn:active {
+        transform: translateY(0);
       }
     </style>
   </head>
   <body>
-    <h1>Tic-Tac-Toe</h1>
+    <h1>Tic-Tac-Toe AI</h1>
     <p id="status"></p>
-    <div id="board"></div>
-    <div style="margin-top: 20px">
-      <button onclick="newGame(1)">Play as X</button>
-      <button onclick="newGame(2)">Play as O</button>
+
+    <div class="board-container">
+      <div id="board"></div>
+    </div>
+
+    <div class="controls">
+      <button class="play-btn x-btn" onclick="newGame(1)">Play as X</button>
+      <button class="play-btn o-btn" onclick="newGame(2)">Play as O</button>
     </div>
 
     <script>
@@ -62,6 +148,10 @@
         for (let i = 0; i < 9; i++) {
           const cell = document.createElement("button");
           cell.className = "cell";
+
+          if (board[i] === 1) cell.classList.add("x");
+          if (board[i] === 2) cell.classList.add("o");
+
           cell.textContent = SYMBOLS[board[i]];
           cell.onclick = function () {
             play(i);
@@ -73,14 +163,20 @@
       function showStatus(status) {
         const p = document.getElementById("status");
         const symbol = SYMBOLS[HUMAN];
+
+        p.style.color = "#7f8c8d";
+
         if (status === "human") {
-          p.textContent = "You win!";
+          p.textContent = "🎉 You win!";
+          p.style.color = "#2ecc71";
           gameOver = true;
         } else if (status === "bot") {
-          p.textContent = "Bot wins!";
+          p.textContent = "💀 Bot wins!";
+          p.style.color = "#e74c3c";
           gameOver = true;
         } else if (status === "draw") {
-          p.textContent = "It's a draw!";
+          p.textContent = "🤝 It's a draw!";
+          p.style.color = "#f39c12";
           gameOver = true;
         } else {
           p.textContent = "Your turn (" + symbol + ")";
@@ -131,3 +227,4 @@
     </script>
   </body>
 </html>
+

@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tic-Tac-Toe vs Bot</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        margin-top: 40px;
+      }
+      #status {
+        font-size: 20px;
+        margin-bottom: 15px;
+        height: 24px;
+      }
+      #board {
+        display: grid;
+        grid-template-columns: repeat(3, 90px);
+        gap: 6px;
+        justify-content: center;
+      }
+      .cell {
+        width: 90px;
+        height: 90px;
+        font-size: 44px;
+        background: #eee;
+        border: none;
+        cursor: pointer;
+      }
+      .cell:hover {
+        background: #ddd;
+      }
+      #reset {
+        margin-top: 20px;
+        padding: 8px 18px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tic-Tac-Toe</h1>
+    <p id="status"></p>
+    <div id="board"></div>
+    <div style="margin-top: 20px">
+      <button onclick="newGame(1)">Play as X</button>
+      <button onclick="newGame(2)">Play as O</button>
+    </div>
+
+    <script>
+      const SYMBOLS = { 0: "", 1: "X", 2: "O" };
+
+      let board = [];
+      let gameOver = false;
+      let HUMAN = 1;
+      let BOT = 2;
+
+      function drawBoard() {
+        const boardDiv = document.getElementById("board");
+        boardDiv.innerHTML = "";
+        for (let i = 0; i < 9; i++) {
+          const cell = document.createElement("button");
+          cell.className = "cell";
+          cell.textContent = SYMBOLS[board[i]];
+          cell.onclick = function () {
+            play(i);
+          };
+          boardDiv.appendChild(cell);
+        }
+      }
+
+      function showStatus(status) {
+        const p = document.getElementById("status");
+        const symbol = SYMBOLS[HUMAN];
+        if (status === "human") {
+          p.textContent = "You win!";
+          gameOver = true;
+        } else if (status === "bot") {
+          p.textContent = "Bot wins!";
+          gameOver = true;
+        } else if (status === "draw") {
+          p.textContent = "It's a draw!";
+          gameOver = true;
+        } else {
+          p.textContent = "Your turn (" + symbol + ")";
+        }
+      }
+
+      async function play(cell) {
+        if (gameOver || board[cell] !== 0) return;
+
+        board[cell] = HUMAN;
+        drawBoard();
+
+        const response = await fetch("/move", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ board: board, bot_player: BOT }),
+        });
+        const data = await response.json();
+
+        board = data.board;
+        drawBoard();
+        showStatus(data.status);
+      }
+
+      async function botFirstMove() {
+        const response = await fetch("/move", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ board: board, bot_player: BOT }),
+        });
+        const data = await response.json();
+        board = data.board;
+        drawBoard();
+        showStatus(data.status);
+      }
+
+      function newGame(side) {
+        board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        gameOver = false;
+        HUMAN = side || 1;
+        BOT = HUMAN === 1 ? 2 : 1;
+        drawBoard();
+        showStatus("ongoing");
+        if (BOT === 1) botFirstMove();
+      }
+
+      newGame(1);
+    </script>
+  </body>
+</html>

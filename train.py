@@ -82,7 +82,7 @@ if __name__ == "__main__":
     agent_x = Agent(X)
     agent_o = Agent(O)
 
-    train(agent_x, agent_o, 1000000)
+    train(agent_x, agent_o, 100000)
 
     games_against_random = 1000
     win_x, draw_x, lose_x = play_against_random(agent_x, X, games_against_random)
@@ -97,4 +97,6 @@ if __name__ == "__main__":
     print(
         f"Win probability: {win_o / games_against_random}, loss probability: {lose_o / games_against_random}"
     )
+    print(f"Total canonical positions explored: {len(agent_x.values)}")
     save(agent_x, agent_o)
+
