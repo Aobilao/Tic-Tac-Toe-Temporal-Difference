@@ -48,13 +48,9 @@ class Agent:
 
     def get_value(self, board: Board) -> float:
         canonical_board = get_canonical(board)
-
-        if canonical_board not in self.values:
-            if canonical_board[4] == self.player:
-                return min(DEFAULT_VALUE + 0.1, 1.0)
-            return DEFAULT_VALUE
-
-        return self.values[canonical_board]
+        if canonical_board in self.values:
+            return self.values[canonical_board]
+        return DEFAULT_VALUE
 
     def evaluate_moves(self, game: Game) -> list[dict]:
         evaluations = []

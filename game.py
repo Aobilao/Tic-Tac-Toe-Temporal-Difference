@@ -72,8 +72,7 @@ class Game:
                 print("Invalid move")
                 continue
 
-            new_board = self.board_after_move(player, pos)
-            self.update_board(new_board)
+            self.update(player, pos)
             player = O if player == X else X
 
         if self.winner() == EMPTY:

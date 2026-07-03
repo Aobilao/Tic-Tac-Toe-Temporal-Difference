@@ -95,8 +95,12 @@ if __name__ == "__main__":
 
     train(agent_x, agent_o, TRAINING_ROUNDS)
 
-    win_x, draw_x, lose_x = play_against_random(agent_x, X, GAMES_AGAINST_RANDOM)
-    win_o, draw_o, lose_o = play_against_random(agent_o, O, GAMES_AGAINST_RANDOM)
+    win_x, draw_x, lose_x = play_against_random(
+        agent_x, agent_x.player, GAMES_AGAINST_RANDOM
+    )
+    win_o, draw_o, lose_o = play_against_random(
+        agent_o, agent_o.player, GAMES_AGAINST_RANDOM
+    )
 
     print("Against random")
     print(
@@ -107,4 +111,4 @@ if __name__ == "__main__":
     )
     print(f"Total canonical positions explored for X: {len(agent_x.values)}")
     print(f"Total canonical positions explored for O: {len(agent_o.values)}")
-    save(agent_x, agent_o)
+    save(agent_x, agent_o, "local_values.pkl")

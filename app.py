@@ -1,14 +1,11 @@
-import os
-
 from flask import Flask, request, jsonify, render_template
 
-from game import X, O, Game
+from game import X, O, Game, Player
 from agent import Agent
 from train import load
 
 app = Flask(__name__)
 
-here = os.path.dirname(__file__)
 tables = load()
 
 bot_x = Agent(X, values=tables["X"])
@@ -16,7 +13,7 @@ bot_o = Agent(O, values=tables["O"])
 bots = {X: bot_x, O: bot_o}
 
 
-def status_of(game: Game, human: int, bot: int) -> str:
+def status_of(game: Game, human: Player, bot: Player) -> str:
     won = game.winner()
     if won == human:
         return "human"
