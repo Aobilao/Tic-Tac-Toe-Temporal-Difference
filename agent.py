@@ -46,10 +46,12 @@ class Agent:
         self.epsilon = epsilon
         self.values: dict[Board, float] = {} if values is None else values
 
-    def get_value(self, board: Board) -> float:
+    def get_value(self, board: Board, center_heuristic: bool = False) -> float:
         canonical_board = get_canonical(board)
         if canonical_board in self.values:
             return self.values[canonical_board]
+        if center_heuristic and canonical_board[4] == self.player:
+            return min(DEFAULT_VALUE + 0.1, WIN_REWARD)
         return DEFAULT_VALUE
 
     def evaluate_moves(self, game: Game) -> list[dict]:

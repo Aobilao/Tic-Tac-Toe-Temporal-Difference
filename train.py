@@ -1,9 +1,8 @@
+from game import Player, Board, Game, X, O, EMPTY
+from agent import Agent, reward
 import pickle
 import random
 import os
-
-from game import Player, Board, Game, X, O, EMPTY
-from agent import Agent, reward
 
 GAMES_AGAINST_RANDOM = 1000
 TRAINING_ROUNDS = 1000000
@@ -56,9 +55,7 @@ def load(path: str = "values.pkl"):
         return pickle.load(f)
 
 
-def play_against_random(
-    agent: Agent, agent_player: Player, rounds: int
-) -> tuple[int, int, int]:
+def play_against_random(agent: Agent, rounds: int) -> tuple[int, int, int]:
     win = draw = lose = total = 0
     saved_epsilon = agent.epsilon
     agent.epsilon = 0
@@ -67,7 +64,7 @@ def play_against_random(
         game = Game()
         player = X
         while not game.is_end():
-            if agent_player == player:
+            if agent.player == player:
                 pos = agent.choose_move(game)
                 game.update(player, pos)
             else:
@@ -76,7 +73,7 @@ def play_against_random(
             player = O if player == X else X
 
         winner = game.winner()
-        if winner == agent_player:
+        if winner == agent.player:
             win += 1
         elif winner == EMPTY:
             draw += 1
@@ -95,12 +92,8 @@ if __name__ == "__main__":
 
     train(agent_x, agent_o, TRAINING_ROUNDS)
 
-    win_x, draw_x, lose_x = play_against_random(
-        agent_x, agent_x.player, GAMES_AGAINST_RANDOM
-    )
-    win_o, draw_o, lose_o = play_against_random(
-        agent_o, agent_o.player, GAMES_AGAINST_RANDOM
-    )
+    win_x, draw_x, lose_x = play_against_random(agent_x, GAMES_AGAINST_RANDOM)
+    win_o, draw_o, lose_o = play_against_random(agent_o, GAMES_AGAINST_RANDOM)
 
     print("Against random")
     print(
