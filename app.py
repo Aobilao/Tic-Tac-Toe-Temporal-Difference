@@ -1,24 +1,18 @@
 import os
-import pickle
 
 from flask import Flask, request, jsonify, render_template
 
 from game import X, O, Game
 from agent import Agent
+from train import load
 
 app = Flask(__name__)
 
 here = os.path.dirname(__file__)
-tables = pickle.load(open(os.path.join(here, "values.pkl"), "rb"))
+tables = load()
 
-bot_x = Agent(X)
-bot_x.values = tables["X"]
-bot_x.epsilon = 0
-
-bot_o = Agent(O)
-bot_o.values = tables["O"]
-bot_o.epsilon = 0
-
+bot_x = Agent(X, values=tables["X"])
+bot_o = Agent(O, values=tables["O"])
 bots = {X: bot_x, O: bot_o}
 
 
@@ -78,17 +72,17 @@ def review():
 
         evaluator_bot = bots[player]
         candidates = evaluator_bot.evaluate_moves(game)
-        
-        best_val = -float('inf')
+
+        best_val = -float("inf")
         chosen_val = 0
-        
+
         for c in candidates:
             if c["value"] > best_val:
                 best_val = c["value"]
-            c["chosen"] = (c["move"] == pos)
+            c["chosen"] = c["move"] == pos
             if c["chosen"]:
                 chosen_val = c["value"]
-                
+
         diff = best_val - chosen_val
         if diff <= 0.05:
             quality = "Excellent 🌟"
@@ -110,7 +104,7 @@ def review():
                 "chosen_move": pos,
                 "candidates": candidates,
                 "quality": quality,
-                "q_class": q_class
+                "q_class": q_class,
             }
         )
 

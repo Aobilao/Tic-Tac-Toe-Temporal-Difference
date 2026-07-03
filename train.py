@@ -1,11 +1,12 @@
-from game import Player, Board, Game, X, O, EMPTY
-from agent import Agent, reward
 import pickle
 import random
 import os
 
+from game import Player, Board, Game, X, O, EMPTY
+from agent import Agent, reward
+
 GAMES_AGAINST_RANDOM = 1000
-TRAINING_ROUNDS = 100000
+TRAINING_ROUNDS = 1000000
 
 
 def play_game(
@@ -44,7 +45,7 @@ def train(
         agent_o.train_from_game(state_history[O], reward_o)
 
 
-def save(agent_x: Agent, agent_o: Agent, path: str = "values.pkl") -> None:
+def save(agent_x: Agent, agent_o: Agent, path: str = "local_values.pkl") -> None:
     with open(path, "wb") as f:
         pickle.dump({"X": agent_x.values, "O": agent_o.values}, f)
 
