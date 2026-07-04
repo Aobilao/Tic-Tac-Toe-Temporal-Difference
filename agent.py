@@ -40,17 +40,19 @@ class Agent:
         alpha: float = 0.1,
         epsilon: float = 0.0,
         values: dict[Board, float] | None = None,
+        center_heuristic: bool = False,
     ) -> None:
         self.player = player
         self.alpha = alpha
         self.epsilon = epsilon
         self.values: dict[Board, float] = {} if values is None else values
+        self.center_heuristic = center_heuristic
 
-    def get_value(self, board: Board, center_heuristic: bool = False) -> float:
+    def get_value(self, board: Board) -> float:
         canonical_board = get_canonical(board)
         if canonical_board in self.values:
             return self.values[canonical_board]
-        if center_heuristic and canonical_board[4] == self.player:
+        if self.center_heuristic and canonical_board[4] == self.player:
             return min(DEFAULT_VALUE + 0.1, WIN_REWARD)
         return DEFAULT_VALUE
 
