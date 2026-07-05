@@ -50,13 +50,13 @@ def save(agent_x: Agent, agent_o: Agent, path: str = "local_values.pkl") -> None
 
 
 def load(path: str = "values.pkl"):
-    dir = os.path.dirname(__file__)
-    with open(os.path.join(dir, path), "rb") as f:
+    directory = os.path.dirname(__file__)
+    with open(os.path.join(directory, path), "rb") as f:
         return pickle.load(f)
 
 
 def play_against_random(agent: Agent, rounds: int) -> tuple[int, int, int]:
-    win = draw = lose = total = 0
+    win = draw = lose = 0
     saved_epsilon = agent.epsilon
     agent.epsilon = 0
 
@@ -79,8 +79,6 @@ def play_against_random(agent: Agent, rounds: int) -> tuple[int, int, int]:
             draw += 1
         else:
             lose += 1
-
-        total += 1
 
     agent.epsilon = saved_epsilon
     return win, draw, lose

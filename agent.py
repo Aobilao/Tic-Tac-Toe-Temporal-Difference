@@ -77,9 +77,16 @@ class Agent:
         best_moves = [e["move"] for e in evaluations if e["value"] == best_val]
         return random.choice(best_moves)
 
+    def get_value_canonical(self, canonical_board: Board):
+        if canonical_board in self.values:
+            return self.values[canonical_board]
+        if self.center_heuristic and canonical_board[4] == self.player:
+            return min(DEFAULT_VALUE + 0.1, WIN_REWARD)
+        return DEFAULT_VALUE
+
     def update(self, board: Board, target_reward: float) -> None:
         canonical_board = get_canonical(board)
-        old = self.get_value(canonical_board)
+        old = self.get_value_canonical(canonical_board)
         self.values[canonical_board] = old + self.alpha * (target_reward - old)
 
     def train_from_game(self, boards: list[Board], target_reward: float) -> None:
