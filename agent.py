@@ -60,10 +60,13 @@ class Agent:
         evaluations = []
         for move in game.valid_moves:
             afterstate = game.board_after_move(self.player, move)
+            visited = get_canonical(afterstate) in self.values
             evaluations.append(
                 {
                     "move": move,
+                    "afterstate": list(afterstate),
                     "value": self.get_value(afterstate),
+                    "visited": visited,
                 }
             )
         return evaluations
