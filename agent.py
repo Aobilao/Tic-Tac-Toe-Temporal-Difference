@@ -49,12 +49,7 @@ class Agent:
         self.center_heuristic = center_heuristic
 
     def get_value(self, board: Board) -> float:
-        canonical_board = get_canonical(board)
-        if canonical_board in self.values:
-            return self.values[canonical_board]
-        if self.center_heuristic and canonical_board[4] == self.player:
-            return min(DEFAULT_VALUE + 0.1, WIN_REWARD)
-        return DEFAULT_VALUE
+        return self.get_value_canonical(get_canonical(board))
 
     def evaluate_moves(self, game: Game) -> list[dict]:
         evaluations = []
